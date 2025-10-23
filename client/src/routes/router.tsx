@@ -4,12 +4,17 @@ import Register from "../pages/register/register";
 import Profile from "../pages/profile/profile";
 import ProtectedLayout from "@/components/layout/protected.layout";
 import AuthLayout from "@/components/layout/auth.layout";
+import Products from "@/pages/products/product";
 
 
 export const Routes = [
   {
     path: "/",
     element: <Home />,
+  },
+  {
+    path: "/products",
+    element: <Products />,
   },
   {
     path: "/auth",
