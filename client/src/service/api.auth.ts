@@ -1,5 +1,5 @@
 import axios from "axios"
-import type { SocialLinks } from "../types/auth.types";
+import type { SocialLinks, UserRole } from "../types/auth.types";
 
 const API_BASE_URL = "http://localhost:8080/"
 
@@ -42,6 +42,14 @@ export const userApi = {
         const response = await api.delete("/users/me");
         return response.data;
     },
+    getAllUsers: async () => {
+        const response = await api.get("/users/all");
+        return response.data;
+    },
+    changeUserRole: async (userId: string, role: UserRole) => {
+        const response = await api.patch(`/users/role`, { userId, role });
+        return response.data;
+    }
 }
 
 export default api;

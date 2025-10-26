@@ -1,3 +1,5 @@
+export type UserRole = "client" | "admin" | "super_admin"
+
 export interface SocialLinks {
     twitter: string;
     facebook: string;
@@ -10,6 +12,7 @@ export interface User {
     email: string;
     password: string;
     bio?: string;
+    role: UserRole; // "client", "admin", "super_admin"
     avatarUrl?: string;
     isActive: boolean;
     sosialLinks?: SocialLinks;

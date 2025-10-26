@@ -5,6 +5,8 @@ import Profile from "../pages/profile/profile";
 import ProtectedLayout from "@/components/layout/protected.layout";
 import AuthLayout from "@/components/layout/auth.layout";
 import Products from "@/pages/products/product";
+import AdminDashboard from "@/pages/admin/admin-dashboard";
+import UserManager from "@/pages/admin/user-managment";
 
 
 export const Routes = [
@@ -40,4 +42,12 @@ export const Routes = [
       </ProtectedLayout>
     ),
   },
+  {
+    path: "/admin/dashboard",
+    element: <AdminDashboard />,
+},
+{
+    path: "/admin/users",
+    element: <UserManager />,
+}
 ];

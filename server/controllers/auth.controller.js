@@ -20,11 +20,13 @@ const postRegisterHandler = async (req, res) => {
       email,
     });
     await newUser.save();
-    console.log(`User register ${username}, hashed password: ${hashedPassword}`);
+    console.log(
+      `User register ${username}, hashed password: ${hashedPassword}`
+    );
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error("Registration error:", error);
     res.status(500).json({ message: "Registration failed" });
   }
 };
@@ -39,20 +41,52 @@ const postLoginHandler = async (req, res) => {
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordValid) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isPasswordValid)
+      return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     res.status(500).json({ message: "Login failed" });
+  }
+};
+
+const initializeSuperAdmin = async () => {
+  try {
+    const existingSuperAdmin = await UserModel.findOne({ role: "super_admin" });
+    if (!existingSuperAdmin) {
+      const superAdminData = {
+        username: "superadmin",
+        email: "superadmin@gmail.com",
+        password: await bcrypt.hash("SuperAdmin123", 10),
+        role: "super_admin",
+        bio: "System Super Administrator",
+      };
+
+      const superAdmin = new UserModel(superAdminData);
+      await superAdmin.save();
+
+      console.log("Super admin created:", superAdmin);
+    }
+  } catch (error) {
+    console.error("Error initializing super admin:", error);
   }
 };
 
 module.exports = {
   postRegisterHandler,
   postLoginHandler,
+  initializeSuperAdmin,
 };

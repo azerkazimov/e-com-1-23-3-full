@@ -5,13 +5,25 @@ const {
   getUserHandler,
   patchUserHandler,
   deleteUserHandler,
+  getAllUsersHandler,
+  changeUserRoleHandler,
 } = require("../controllers/user.controller");
+
 const upload = require("../config/multer");
+
+const {
+  requireSuperAdmin,
+  requireAdmin,
+} = require("../middleware/role.middleware");
 
 router
   .route("/me")
   .get(getUserHandler)
   .patch(upload.single("avatar"), patchUserHandler)
   .delete(deleteUserHandler);
+
+router.route("/all").get(requireAdmin, getAllUsersHandler);
+
+router.route("/role").patch(requireSuperAdmin, changeUserRoleHandler);
 
 module.exports = router;
