@@ -8,7 +8,6 @@ import Products from "@/pages/products/product";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
 import UserManager from "@/pages/admin/user-managment";
 
-
 export const Routes = [
   {
     path: "/",
@@ -20,9 +19,7 @@ export const Routes = [
   },
   {
     path: "/auth",
-    element: (
-      <AuthLayout/>
-    ),
+    element: <AuthLayout />,
     children: [
       {
         path: "/auth/login",
@@ -43,11 +40,19 @@ export const Routes = [
     ),
   },
   {
-    path: "/admin/dashboard",
-    element: <AdminDashboard />,
-},
-{
+    path: "/admin",
+    element: (
+      <ProtectedLayout requiredRoles={["admin","super_admin"]}>
+        <AdminDashboard />
+      </ProtectedLayout>
+    ),
+  },
+  {
     path: "/admin/users",
-    element: <UserManager />,
-}
+    element: (
+      <ProtectedLayout requiredRoles={["super_admin"]}>
+        <UserManager />
+      </ProtectedLayout>
+    ),
+  },
 ];

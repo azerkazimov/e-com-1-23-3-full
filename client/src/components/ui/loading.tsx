@@ -1,13 +1,14 @@
 export default function Loading() {
     return (
-      <div className="load-container">
+      <div className="flex justify-center items-center min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 100 100"
           preserveAspectRatio="xMidYMid"
           width="200"
           height="200"
-          style={{shapeRendering: 'auto', display: 'block', background: '#000'}}
+          className="block"
+          style={{shapeRendering: 'auto'}}
         >
           <g>
             <path
