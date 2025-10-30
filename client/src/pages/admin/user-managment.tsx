@@ -114,7 +114,7 @@ export default function UserManager() {
     <div className="container mx-auto min-h-screen p-6 md:p-8 max-w-7xl flex flex-col gap-5">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-2 items-center justify-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <h1 className="text-4xl md:text-5xl font-space-age mb-3 text-indigo-400">
           User Management
         </h1>
         <p className="text-lg text-white/70">

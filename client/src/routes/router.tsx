@@ -7,16 +7,23 @@ import AuthLayout from "@/components/layout/auth.layout";
 import Products from "@/pages/products/product";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
 import UserManager from "@/pages/admin/user-managment";
+import MainLayout from "@/components/layout/main.layout";
 
 export const Routes = [
   {
-    path: "/",
-    element: <Home />,
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/products",
+        element: <Products />,
+      },
+    ],
   },
-  {
-    path: "/products",
-    element: <Products />,
-  },
+
   {
     path: "/auth",
     element: <AuthLayout />,
@@ -42,7 +49,7 @@ export const Routes = [
   {
     path: "/admin",
     element: (
-      <ProtectedLayout requiredRoles={["admin","super_admin"]}>
+      <ProtectedLayout requiredRoles={["admin", "super_admin"]}>
         <AdminDashboard />
       </ProtectedLayout>
     ),
