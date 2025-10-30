@@ -8,6 +8,9 @@ import Products from "@/pages/products/product";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
 import UserManager from "@/pages/admin/user-managment";
 import MainLayout from "@/components/layout/main.layout";
+import Accessories from "@/pages/accessories/accessories";
+import Jewerly from "@/pages/jewerly/jewerly";
+import Brand from "@/pages/brand/brand";
 
 export const Routes = [
   {
@@ -18,8 +21,21 @@ export const Routes = [
         element: <Home />,
       },
       {
-        path: "/products",
+        path: "/watches",
         element: <Products />,
+      },
+      
+      {
+        path: "/accessories",
+        element: <Accessories />,
+      },
+      {
+        path: "/jewerly",
+        element: <Jewerly />,
+      },
+      {
+        path: "/brand",
+        element: <Brand />,
       },
     ],
   },

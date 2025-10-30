@@ -1,5 +1,6 @@
 import useAuthStore from "@/store/auth.store";
 import Loading from "@/components/ui/loading";
+import Hero from "./lib/comnponents/hero";
 
 export default function Home() {
 
@@ -11,8 +12,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8">
-      
+    <div>
+      <Hero/>
     </div>
   );
 }
