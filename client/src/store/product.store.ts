@@ -7,11 +7,16 @@ interface ProductState {
     product: Product | null;
     loading: boolean;
     error: string | null;
+    sortBy: string;
+    currentSort: string;
     getProducts: () => Promise<void>;
     getProductById: (id: string) => Promise<void>;
     createProduct: (product: Product) => Promise<void>;
     updateProduct: (id: string, product: Product) => Promise<void>;
     deleteProduct: (id: string) => Promise<void>;
+    sortProducts: (sortBy: string) => Promise<void>;
+    setSortBy: (sortBy: string) => void;
+    setCurrentSort: (currentSort: string) => void;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -19,6 +24,9 @@ export const useProductStore = create<ProductState>((set) => ({
     product: null,
     loading: false,
     error: null,
+    sortBy: "latest",
+    currentSort: "latest",
+    // Get Products
     getProducts: async () => {
         try {
             const response = await productsApi.getProducts();
@@ -41,10 +49,11 @@ export const useProductStore = create<ProductState>((set) => ({
             set({ loading: false });
         }
     },
+    // Create Product
     createProduct: async (product: Product) => {
         try {
             const response = await productsApi.createProduct(product);
-            set((state) => ({ products: [...state.products, response.data.data] }));
+            set((state) => ({ products: [...state.products, response.data] }));
         } catch (error) {
             set({ loading: false, error: error instanceof Error ? error.message : "An unknown error occurred" });
             throw error;
@@ -52,10 +61,11 @@ export const useProductStore = create<ProductState>((set) => ({
             set({ loading: false });
         }
     },
+    // Update Product
     updateProduct: async (id: string, product: Product) => {
         try {
             const response = await productsApi.updateProduct(id, product);
-            set((state) => ({ products: state.products.map((p) => p._id === id ? response.data.data : p) }));
+            set((state) => ({ products: state.products.map((p) => p._id === id ? response.data : p) }));
         } catch (error) {
             set({ loading: false, error: error instanceof Error ? error.message : "An unknown error occurred" });
             throw error;
@@ -63,6 +73,7 @@ export const useProductStore = create<ProductState>((set) => ({
             set({ loading: false });
         }
     },
+    // Delete Product
     deleteProduct: async (id: string) => {
         try {
             await productsApi.deleteProduct(id);
@@ -74,4 +85,18 @@ export const useProductStore = create<ProductState>((set) => ({
             set({ loading: false });
         }
     },
+    // Sort Products
+    sortProducts: async (sortBy: string) => {
+        try {
+            const response = await productsApi.sortProducts(sortBy);
+            set({ products: response.data, loading: false });
+        } catch (error) {
+            set({ loading: false, error: error instanceof Error ? error.message : "An unknown error occurred" });
+            throw error;
+        } finally {
+            set({ loading: false });
+        }
+    },
+    setSortBy: (sortBy: string) => set({ sortBy }),
+    setCurrentSort: (currentSort: string) => set({ currentSort }),
 }))

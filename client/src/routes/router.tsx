@@ -11,6 +11,7 @@ import MainLayout from "@/components/layout/main.layout";
 import Accessories from "@/pages/accessories/accessories";
 import Jewerly from "@/pages/jewerly/jewerly";
 import Brand from "@/pages/brand/brand";
+import ProductAdmin from "@/pages/products/product-admin";
 
 export const Routes = [
   {
@@ -68,6 +69,16 @@ export const Routes = [
       <ProtectedLayout requiredRoles={["admin", "super_admin"]}>
         <AdminDashboard />
       </ProtectedLayout>
+      
+    ),
+  },
+  {
+    path: "/admin/products",
+    element: (
+      <ProtectedLayout requiredRoles={["admin", "super_admin"]}>
+        <ProductAdmin />
+      </ProtectedLayout>
+      
     ),
   },
   {

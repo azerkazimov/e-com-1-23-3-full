@@ -89,7 +89,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="px-6 py-4 bg-white/5 border-t border-white/10">
-            <Link to="/products" className="text-blue-400 hover:text-blue-300 font-medium text-sm transition-colors inline-flex items-center group">
+            <Link to="/admin/products" className="text-blue-400 hover:text-blue-300 font-medium text-sm transition-colors inline-flex items-center group">
               View products
               <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

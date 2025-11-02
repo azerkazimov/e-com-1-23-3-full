@@ -31,6 +31,10 @@ const productsApi = {
         const response = await api.delete(`/${id}`);
         return response.data;
     },
+    sortProducts: async (sortBy: string)=>{
+        const response = await api.get(`/sort?sortBy=${sortBy}`);
+        return response.data;
+    },
 }
 
 export default productsApi;

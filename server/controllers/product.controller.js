@@ -70,10 +70,45 @@ const getProductByIdHandler = async (req, res) => {
   }
 };
 
+const sortProductsHandler = async (req, res) => {
+  try {
+    const { sortBy } = req.query;
+
+    let sortQuery = {};
+    switch(sortBy){
+      case "latest":
+        sortQuery = { createdAt: -1 };
+        break;
+      case "price-low-to-high":
+        sortQuery = { price: 1 };
+        break;
+      case "price-high-to-low":
+        sortQuery = { price: -1 };
+        break;
+      case "name-a-to-z":
+        sortQuery = { name: 1 };
+        break;
+      case "name-z-to-a":
+        sortQuery = { name: -1 };
+        break;
+      default:
+        sortQuery = { createdAt: -1 };
+    }
+
+    const products = await Product.find().sort(sortQuery);
+    res.status(200).json({ data: products });
+  } catch (error) {
+    console.error("Can't sort products", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
 module.exports = {
   getProductsHandler,
   postProductHandler,
   patchProductHandler,
   deleteProductHandler,
   getProductByIdHandler,
+  sortProductsHandler,
 };
