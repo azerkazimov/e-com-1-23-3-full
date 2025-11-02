@@ -103,6 +103,29 @@ const sortProductsHandler = async (req, res) => {
   }
 }
 
+const searchProductsHandler = async (req, res) => {
+  try {
+    const { search, categories } = req.query;
+    
+    // Build query object
+    let query = { name: { $regex: search, $options: "i" } };
+    
+    // Add category filter if categories are provided
+    if (categories) {
+      const categoryArray = categories.split(',').filter(cat => cat.trim());
+      if (categoryArray.length > 0) {
+        query.category = { $in: categoryArray };
+      }
+    }
+    
+    const product = await Product.find(query);
+    res.status(200).json({ data: product });
+  } catch (error) {
+    console.error("Can't search products", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
 
 module.exports = {
   getProductsHandler,
@@ -111,4 +134,5 @@ module.exports = {
   deleteProductHandler,
   getProductByIdHandler,
   sortProductsHandler,
+  searchProductsHandler,
 };

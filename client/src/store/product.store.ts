@@ -11,6 +11,8 @@ interface ProductState {
     sortBy: string;
     currentSort: string;
     selectedCategories: string[];
+    searchQuery: string;
+    isSearching: boolean;
     getProducts: () => Promise<void>;
     getProductById: (id: string) => Promise<void>;
     createProduct: (product: Product) => Promise<void>;
@@ -22,6 +24,9 @@ interface ProductState {
     setProducts: (products: Product[]) => void;
     toggleCategory: (category: string) => void;
     applyFilters: () => void;
+    searchProducts: (searchQuery: string) => Promise<void>;
+    setSearchQuery: (searchQuery: string) => void;
+    clearSearch: () => void;
 }
 
 export const useProductStore = create<ProductState>((set, get) => ({
@@ -33,6 +38,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
     sortBy: "latest",
     currentSort: "latest",
     selectedCategories: [],
+    searchQuery: "",
+    isSearching: false,
     // Get Products
     getProducts: async () => {
         try {
@@ -109,12 +116,17 @@ export const useProductStore = create<ProductState>((set, get) => ({
     setProducts: (products: Product[]) => set({ products }),
     // Toggle Category
     toggleCategory: (category: string) => {
-        const { selectedCategories } = get();
+        const { selectedCategories, searchQuery } = get();
         const newCategories = selectedCategories.includes(category)
             ? selectedCategories.filter((c) => c !== category)
             : [...selectedCategories, category];
         set({ selectedCategories: newCategories });
-        get().applyFilters();
+        
+        // Only apply filters if not searching
+        // If searching, the search will be re-run with new categories
+        if (!searchQuery.trim()) {
+            get().applyFilters();
+        }
     },
     // Apply Filters
     applyFilters: () => {
@@ -127,5 +139,24 @@ export const useProductStore = create<ProductState>((set, get) => ({
             );
             set({ products: filtered });
         }
+    },
+    // Search Products
+    searchProducts: async (searchQuery: string) => {
+        try {
+            const { selectedCategories } = get();
+            const response = await productsApi.searchProducts(searchQuery, selectedCategories);
+            set({ products: response.data, loading: false });
+        } catch (error) {
+            set({ loading: false, error: error instanceof Error ? error.message : "An unknown error occurred" });
+            throw error;
+        } finally {
+            set({ loading: false });
+        }
+    },
+    setSearchQuery: (searchQuery: string) => set({ searchQuery }),
+    clearSearch: () => {
+        set({ searchQuery: "" });
+        // Re-apply category filters (shows all products if no categories selected)
+        get().applyFilters();
     },
 }))

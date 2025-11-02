@@ -35,6 +35,14 @@ const productsApi = {
         const response = await api.get(`/sort?sortBy=${sortBy}`);
         return response.data;
     },
+    searchProducts: async (search: string, categories?: string[])=>{
+        let url = `/search?search=${search}`;
+        if (categories && categories.length > 0) {
+            url += `&categories=${categories.join(',')}`;
+        }
+        const response = await api.get(url);
+        return response.data;
+    },
 }
 
 export default productsApi;
