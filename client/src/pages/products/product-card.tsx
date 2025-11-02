@@ -1,27 +1,55 @@
 import { useProductStore } from "@/store/product.store";
+import { useModalStore } from "@/store/modal.store";
+import useAuthStore from "@/store/auth.store";
 import type { Product } from "@/types/product.types";
 import { Link } from "react-router-dom";
-import { TrashIcon } from "lucide-react";
+import { TrashIcon, PencilIcon } from "lucide-react";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { deleteProduct } = useProductStore();
+  const { openModalWithProduct } = useModalStore();
+  const { user } = useAuthStore();
+  
+  // Check if user is admin or super admin
+  const canModifyProduct = user?.role === "admin" || user?.role === "super_admin";
+  
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     deleteProduct(product._id);
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openModalWithProduct(product);
+  };
+
   return (
     <Link to={`/products/${product._id}`} className="group">
       <div className="relative h-96 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/20 hover:border-indigo-500/30">
-        {/* Delete Button */}
-        <button
-          onClick={handleDelete}
-          className="absolute top-4 right-4 z-10 w-10 h-10 bg-red-500/10 hover:bg-red-500/20 backdrop-blur-sm border border-red-500/30 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 group/delete"
-          title="Delete product"
-        >
-          <TrashIcon className="w-5 h-5 text-red-400 group-hover/delete:text-red-300" />
-        </button>
+        {/* Action Buttons - Only visible for admin and super_admin */}
+        {canModifyProduct && (
+          <div className="absolute top-4 right-4 z-10 flex gap-2">
+            {/* Edit Button */}
+            <button
+              onClick={handleEdit}
+              className="w-10 h-10 bg-indigo-500/10 hover:bg-indigo-500/20 backdrop-blur-sm border border-indigo-500/30 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 group/edit"
+              title="Edit product"
+            >
+              <PencilIcon className="w-5 h-5 text-indigo-400 group-hover/edit:text-indigo-300" />
+            </button>
+            
+            {/* Delete Button */}
+            <button
+              onClick={handleDelete}
+              className="w-10 h-10 bg-red-500/10 hover:bg-red-500/20 backdrop-blur-sm border border-red-500/30 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 group/delete"
+              title="Delete product"
+            >
+              <TrashIcon className="w-5 h-5 text-red-400 group-hover/delete:text-red-300" />
+            </button>
+          </div>
+        )}
 
         {/* Product Image */}
         <div className="w-full h-full overflow-hidden">

@@ -1,36 +1,75 @@
 import { useProductStore } from "@/store/product.store";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import {
   productFormSchema,
   type ProductFormSchema,
+  PRODUCT_CATEGORIES,
 } from "./product.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useModalStore } from "@/store/modal.store";
+import { useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ProductForm() {
-  const { createProduct } = useProductStore();
-  const { isOpen, closeModal } = useModalStore();
+  const { createProduct, updateProduct } = useProductStore();
+  const { isOpen, closeModal, editingProduct } = useModalStore();
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormSchema>({
     resolver: zodResolver(productFormSchema),
   });
+
+  const isEditMode = !!editingProduct;
+
+  // Reset form when editingProduct changes
+  useEffect(() => {
+    if (editingProduct) {
+      reset({
+        name: editingProduct.name,
+        description: editingProduct.description,
+        price: editingProduct.price,
+        category: editingProduct.category as ProductFormSchema['category'],
+        image: editingProduct.image || "",
+      });
+    } else {
+      reset({
+        name: "",
+        description: "",
+        price: 0,
+        category: undefined,
+        image: "",
+      });
+    }
+  }, [editingProduct, reset]);
 
   const onSubmit = async (data: ProductFormSchema) => {
     try {
       const productData = {
         ...data,
         image: data.image && data.image.trim() !== '' ? data.image : undefined,
-        _id: "",
+        _id: editingProduct?._id || "",
       };
-      await createProduct(productData);
+      
+      if (isEditMode && editingProduct) {
+        await updateProduct(editingProduct._id, productData);
+      } else {
+        await createProduct(productData);
+      }
+      
       reset();
       closeModal();
     } catch (error) {
-      console.error("Failed to create product:", error);
+      console.error(`Failed to ${isEditMode ? 'update' : 'create'} product:`, error);
     }
   };
 
@@ -50,10 +89,16 @@ export default function ProductForm() {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-linear-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  {isEditMode ? (
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  ) : (
+                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  )}
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-white">Create New Product</h2>
+              <h2 className="text-2xl font-bold text-white">
+                {isEditMode ? 'Edit Product' : 'Create New Product'}
+              </h2>
             </div>
             <button
               onClick={handleCancel}
@@ -108,6 +153,43 @@ export default function ProductForm() {
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
                 {errors.description.message}
+              </p>
+            )}
+          </div>
+
+          {/* Category */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-semibold text-white/90 mb-2">
+              Category
+            </label>
+            <Controller
+              name="category"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900/95 backdrop-blur-xl border-white/20">
+                    {PRODUCT_CATEGORIES.map((category) => (
+                      <SelectItem 
+                        key={category} 
+                        value={category}
+                        className="text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer capitalize"
+                      >
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.category && (
+              <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {errors.category.message}
               </p>
             )}
           </div>
@@ -184,14 +266,18 @@ export default function ProductForm() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Creating...
+                  {isEditMode ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    {isEditMode ? (
+                      <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z" />
+                    ) : (
+                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    )}
                   </svg>
-                  Create Product
+                  {isEditMode ? 'Update Product' : 'Create Product'}
                 </>
               )}
             </button>

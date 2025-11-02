@@ -12,12 +12,12 @@ const getProductsHandler = async (req, res) => {
 
 const postProductHandler = async (req, res) => {
   try {
-    const { name, description, price, image } = req.body;
+    const { name, description, price, image, category } = req.body;
 
-    if (!name || !description || !price || !image)
+    if (!name || !description || !price || !image || !category)
       return res.status(400).json({ message: "All fields are required" });
 
-    const product = await Product.create({ name, description, price, image });
+    const product = await Product.create({ name, description, price, image, category });
     res
       .status(201)
       .json({ message: "Product created successfully", data: product });
@@ -29,14 +29,14 @@ const postProductHandler = async (req, res) => {
 
 const patchProductHandler = async (req, res) => {
   try {
-    const { name, description, price, image } = req.body;
+    const { name, description, price, image, category } = req.body;
 
-    if (!name || !description || !price || !image)
+    if (!name || !description || !price || !image || !category)
       return res.status(400).json({ message: "All fields are required" });
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, description, price, image },
+      { name, description, price, image, category },
       { new: true }
     );
     res.json({ message: "Product updated successfully", data: product });

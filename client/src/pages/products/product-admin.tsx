@@ -1,12 +1,17 @@
 import { useEffect } from "react";
 import { useProductStore } from "@/store/product.store";
 import { useModalStore } from "@/store/modal.store";
+import useAuthStore from "@/store/auth.store";
 import ProductForm from "./product-form";
 import ProductCard from "./product-card";
 
 export default function ProductAdmin() {
   const { products, loading, getProducts } = useProductStore();
   const { openModal } = useModalStore();
+  const { user } = useAuthStore();
+  
+  // Check if user is admin or super admin
+  const canModifyProducts = user?.role === "admin" || user?.role === "super_admin";
 
   useEffect(() => {
     getProducts();
@@ -26,24 +31,26 @@ export default function ProductAdmin() {
             </p>
           </div>
           
-          {/* Add Product Button */}
-          <button
-            onClick={openModal}
-            className="inline-flex items-center gap-3 px-6 py-4 bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-indigo-500/50 group"
-          >
-            <svg 
-              className="w-6 h-6 transition-transform group-hover:rotate-90" 
-              fill="currentColor" 
-              viewBox="0 0 20 20"
+          {/* Add Product Button - Only visible for admin and super_admin */}
+          {canModifyProducts && (
+            <button
+              onClick={openModal}
+              className="inline-flex items-center gap-3 px-6 py-4 bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-indigo-500/50 group"
             >
-              <path 
-                fillRule="evenodd" 
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" 
-                clipRule="evenodd" 
-              />
-            </svg>
-            Add New Product
-          </button>
+              <svg 
+                className="w-6 h-6 transition-transform group-hover:rotate-90" 
+                fill="currentColor" 
+                viewBox="0 0 20 20"
+              >
+                <path 
+                  fillRule="evenodd" 
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" 
+                  clipRule="evenodd" 
+                />
+              </svg>
+              Add New Product
+            </button>
+          )}
         </div>
 
         {/* Stats Card */}
@@ -118,16 +125,22 @@ export default function ProductAdmin() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-white mb-2">No Products Yet</h3>
-              <p className="text-white/60 mb-6">Get started by adding your first product</p>
-              <button
-                onClick={openModal}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-indigo-500/50"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Add Your First Product
-              </button>
+              <p className="text-white/60 mb-6">
+                {canModifyProducts 
+                  ? "Get started by adding your first product" 
+                  : "Products will appear here once they are added"}
+              </p>
+              {canModifyProducts && (
+                <button
+                  onClick={openModal}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-indigo-500/50"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
+                  Add Your First Product
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

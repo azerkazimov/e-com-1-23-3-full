@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
+import { useProductStore } from "@/store/product.store";
 
 export default function ProductSidebar() {
+  const { toggleCategory, selectedCategories } = useProductStore();
+  
+  const handleCategoryChange = (category: string) => {
+    toggleCategory(category);
+  };
+
   return (
     <aside className="lg:w-80 shrink-0">
       <div className="space-y-6">
@@ -24,6 +31,10 @@ export default function ProductSidebar() {
               <input
                 type="checkbox"
                 className="w-4 h-4 text-purple-600 rounded"
+                name="category"
+                value="watches"
+                checked={selectedCategories.includes("watches")}
+                onChange={(e) => handleCategoryChange(e.target.value)}
               />
               <span className="text-gray-700">Watches</span>
             </label>
@@ -31,6 +42,10 @@ export default function ProductSidebar() {
               <input
                 type="checkbox"
                 className="w-4 h-4 text-purple-600 rounded"
+                name="category"
+                value="straps"
+                checked={selectedCategories.includes("straps")}
+                onChange={(e) => handleCategoryChange(e.target.value)}
               />
               <span className="text-gray-700">Straps</span>
             </label>

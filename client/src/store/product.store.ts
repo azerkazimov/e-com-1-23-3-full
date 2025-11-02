@@ -4,11 +4,13 @@ import productsApi from "@/service/api.products";
 
 interface ProductState {
     products: Product[];
+    allProducts: Product[];
     product: Product | null;
     loading: boolean;
     error: string | null;
     sortBy: string;
     currentSort: string;
+    selectedCategories: string[];
     getProducts: () => Promise<void>;
     getProductById: (id: string) => Promise<void>;
     createProduct: (product: Product) => Promise<void>;
@@ -17,20 +19,25 @@ interface ProductState {
     sortProducts: (sortBy: string) => Promise<void>;
     setSortBy: (sortBy: string) => void;
     setCurrentSort: (currentSort: string) => void;
+    setProducts: (products: Product[]) => void;
+    toggleCategory: (category: string) => void;
+    applyFilters: () => void;
 }
 
-export const useProductStore = create<ProductState>((set) => ({
+export const useProductStore = create<ProductState>((set, get) => ({
     products: [],
+    allProducts: [],
     product: null,
     loading: false,
     error: null,
     sortBy: "latest",
     currentSort: "latest",
+    selectedCategories: [],
     // Get Products
     getProducts: async () => {
         try {
             const response = await productsApi.getProducts();
-            set({ products: response.data, loading: false });
+            set({ products: response.data, allProducts: response.data, loading: false });
         } catch (error) {
             set({ loading: false, error: error instanceof Error ? error.message : "An unknown error occurred" });
             throw error;
@@ -89,7 +96,7 @@ export const useProductStore = create<ProductState>((set) => ({
     sortProducts: async (sortBy: string) => {
         try {
             const response = await productsApi.sortProducts(sortBy);
-            set({ products: response.data, loading: false });
+            set({ products: response.data, allProducts: response.data, loading: false });
         } catch (error) {
             set({ loading: false, error: error instanceof Error ? error.message : "An unknown error occurred" });
             throw error;
@@ -99,4 +106,26 @@ export const useProductStore = create<ProductState>((set) => ({
     },
     setSortBy: (sortBy: string) => set({ sortBy }),
     setCurrentSort: (currentSort: string) => set({ currentSort }),
+    setProducts: (products: Product[]) => set({ products }),
+    // Toggle Category
+    toggleCategory: (category: string) => {
+        const { selectedCategories } = get();
+        const newCategories = selectedCategories.includes(category)
+            ? selectedCategories.filter((c) => c !== category)
+            : [...selectedCategories, category];
+        set({ selectedCategories: newCategories });
+        get().applyFilters();
+    },
+    // Apply Filters
+    applyFilters: () => {
+        const { allProducts, selectedCategories } = get();
+        if (selectedCategories.length === 0) {
+            set({ products: allProducts });
+        } else {
+            const filtered = allProducts.filter((product) =>
+                selectedCategories.includes(product.category)
+            );
+            set({ products: filtered });
+        }
+    },
 }))
